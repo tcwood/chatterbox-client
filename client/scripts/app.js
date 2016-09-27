@@ -8,12 +8,13 @@ App.prototype.init = function() {};
 
 
 var message = {
-  username: '',
-  text: '',
+  username: 'hiphopopotomous',
+  text: 'my lyrics are bottomless',
   roomname: 'lobby'
 };
 
 App.prototype.send = function(message) {
+  console.log(message);
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
     url: this.server,
@@ -48,7 +49,7 @@ App.prototype.fetch = function(roomname) {
 
       });
       //can use two this bind's here if we want because we understand bind now watchout
-      console.log(data);
+      // console.log(data);
     },
     error: function (data) {
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -59,9 +60,12 @@ App.prototype.fetch = function(roomname) {
 
 App.prototype.renderMessage = function(message) {
   // add a message to the dom
-  if (!this.rooms[message.roomname]) {
-    this.rooms[message.roomname] = true;
-    this.renderRoom(message.roomname);
+  var origRoom = message.roomname || '';
+  var room = origRoom.replace(/</g, '&lt;').replace(/>/g, '&gt; ').toLowerCase();
+
+  if (!this.rooms[room]) {
+    this.rooms[room] = true;
+    this.renderRoom(room);
   }
 
 
@@ -69,7 +73,7 @@ App.prototype.renderMessage = function(message) {
   var origText = message.text || '';
   var user = origUser.replace(/</g, '&lt;').replace(/>/g, '&gt; ');
   var text = origText.replace(/</g, '&lt;').replace(/>/g, '&gt; ');
-  $('#chats').append('<li class= "message">' + user + ': ' + text + '</li>');
+  $('#chats').append('<li class= "message ' + room + '">' + user + ': ' + text + '</li>');
 };
 
 App.prototype.clearMessages = function() {
@@ -77,29 +81,65 @@ App.prototype.clearMessages = function() {
 };
 
 App.prototype.renderRoom = function(roomname) {
-  $('#roomSelect').prepend("<a class= " + roomname + " href='#' >");
+  $('#roomSelect').prepend("<a class= " + roomname + " href='#' >" + roomname);
 };
 
 App.prototype.clearRooms = function() {
   $('#roomSelect').empty();
 };
 
+App.prototype.showRoom = function(roomname) {
+  //iterate through all of messages
+  roomname = roomname.toLowerCase();
+  $('.message').each(function(index, element) {
+    //if it is the right roomname--keep on/toggle on if they're off
+    if ($(element).hasClass(roomname)) {
+      $(element).show();
+    } else {
+      // else not roomname, so toggle it off 
+      $(element).hide();
+    }
+  });
+};
 /* When the user clicks on the button, 
 toggle between hiding and showing the dropdown content */
 var myFunction = function () {
   document.getElementById('roomSelect').classList.toggle('show');
 };
-/*
-$('.submit').on('click', function() {
-  console.log($('.newmessage').val());
-  send($('.newmessage').val());
+
+$( document ).ready(function() {
+  $('.submit').on('click', function() {
+    var message = {
+      //if your username has an = this won't work, so don't do that
+      username: window.location.search.split('=')[1],
+      text: $('.newmessage').val(),
+      //changeroom
+      roomname: 'lobby'
+    };
+    app.send(message);
+  });
+  
+  //this can work but doesn't right now for uncliking rooms
+  // $('.rooms').on('click', function(event) {
+  //   console.log(event.target.matches('.dropbtn'));
+  //   console.log(this);
+  //   if (!event.target.matches('.dropbtn')) {
+  //     var dropdowns = $('.dropdown-content');
+  //     var i;
+  //     for (i = 0; i < dropdowns.length; i++) {
+  //       var openDropdown = dropdowns[i];
+  //       if (openDropdown.classList.contains('show')) {
+  //         openDropdown.classList.remove('show');
+  //       }
+  //     }
+  //   }
+  // });
 });
-*/
-// Close the dropdown menu if the user clicks outside of it
+
 window.onclick = function(event) {
-
+  //runs myfunction (above) on any click, and runs this function
+  //below when it's not the button click (to hide the elements)
   if (!event.target.matches('.dropbtn')) {
-
     var dropdowns = document.getElementsByClassName('dropdown-content');
     var i;
     for (i = 0; i < dropdowns.length; i++) {
@@ -110,6 +150,9 @@ window.onclick = function(event) {
     }
   }
 };
+
+
+// Close the dropdown menu if the user clicks outside of it
 
 var gossipSent = {};
 var gossipMessages = ['once almost choaked on a peanut', 'didn\'t actually want to pair with you...', 'is a world-famous hydroponicist',
