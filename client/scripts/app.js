@@ -8,15 +8,15 @@ App.prototype.init = function() {};
 
 
 var message = {
-  username: 'asdf',
-  text: 'asdf',
+  username: '',
+  text: '',
   roomname: 'lobby'
 };
 
 App.prototype.send = function(message) {
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
-    url: 'https://api.parse.com/1/classes/messages',
+    url: this.server,
     type: 'POST',
     data: JSON.stringify(message),
     contentType: 'application/json',
@@ -69,7 +69,7 @@ App.prototype.renderMessage = function(message) {
   var origText = message.text || '';
   var user = origUser.replace(/</g, '&lt;').replace(/>/g, '&gt; ');
   var text = origText.replace(/</g, '&lt;').replace(/>/g, '&gt; ');
-  $('#chats').append('<li>' + user + ': ' + text + '</li>');
+  $('#chats').append('<li class= "message">' + user + ': ' + text + '</li>');
 };
 
 App.prototype.clearMessages = function() {
@@ -77,7 +77,7 @@ App.prototype.clearMessages = function() {
 };
 
 App.prototype.renderRoom = function(roomname) {
-  $('#roomSelect').prepend('<a class= "test" href="#" >' + roomname);
+  $('#roomSelect').prepend("<a class= " + roomname + " href='#' >");
 };
 
 App.prototype.clearRooms = function() {
@@ -87,14 +87,14 @@ App.prototype.clearRooms = function() {
 /* When the user clicks on the button, 
 toggle between hiding and showing the dropdown content */
 var myFunction = function () {
-  document.getElementById('myDropdown').classList.toggle('show');
+  document.getElementById('roomSelect').classList.toggle('show');
 };
-
+/*
 $('.submit').on('click', function() {
   console.log($('.newmessage').val());
   send($('.newmessage').val());
 });
-
+*/
 // Close the dropdown menu if the user clicks outside of it
 window.onclick = function(event) {
 
@@ -111,24 +111,35 @@ window.onclick = function(event) {
   }
 };
 
+var gossipSent = {};
+var gossipMessages = ['once almost choaked on a peanut', 'didn\'t actually want to pair with you...', 'is a world-famous hydroponicist',
+'once hacked the federal reserve just \'cus', 'could kill you with 28 household appliances'];
 // Retrieve messages from Parse
-//   auto-updating
-//   protect against xss
-// send messages to parse
-
-
-// Create different chatrooms
-  // filtering our AJAX request or filter all data
-
-// Socializing- click friends to make their messages bold
-
-//make it pretty 
+App.prototype.gossip = function() {
+  //for each message in gossip, if you haven't responded to it yet,
+  //do now
+  //fetch the messages from the gossip username
+  // this.fetch('gossip');
+  //get the username (currently done in the message method...)
+  //listOfNames.forEach(function(name) { if (!gossipSent[name]) { 
+    //given that username, make a random message
+    // var currMessage = gossipMessages[Math.round(Math.random() * gossipMessages.length)];
+    // var message = {
+    // username: name,
+    // text: currMessage,
+    // roomname: 'gossip'
+    // };
+    // this.send(message);
+    // gossipSent[name] = name} );
+    // }
+};
 
 
 var app = new App();
 
-app.send(message);
+// app.send(message);
 app.fetch();
+// app.gossip();
 
 
 //   https://api.parse.com/1/classes/messages
