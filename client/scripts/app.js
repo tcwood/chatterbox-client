@@ -73,7 +73,7 @@ App.prototype.renderMessage = function(message) {
   var origText = message.text || '';
   var user = origUser.replace(/</g, '&lt;').replace(/>/g, '&gt; ');
   var text = origText.replace(/</g, '&lt;').replace(/>/g, '&gt; ');
-  $('#chats').append('<li class= "message ' + room + '">' + user + ': ' + text + '</li>');
+  $('#chats').append('<li onclick="friends.bind(this)()" class= "message ' + room + " " + user + '">' + user + ': ' + text + '</li>');
 };
 
 App.prototype.clearMessages = function() {
@@ -81,7 +81,7 @@ App.prototype.clearMessages = function() {
 };
 
 App.prototype.renderRoom = function(roomname) {
-  $('#roomSelect').prepend("<a class= " + roomname + " href='#' >" + roomname);
+  $('#roomSelect').prepend('<a onclick="showIt.bind(this)()" class= "roomList ' + roomname + '" href="#" >' + roomname);
 };
 
 App.prototype.clearRooms = function() {
@@ -107,6 +107,20 @@ var myFunction = function () {
   document.getElementById('roomSelect').classList.toggle('show');
 };
 
+var showIt = function() {
+  console.log(this);
+  console.log('text:' + $(this).text());
+  app.showRoom($(this).text());
+};
+
+var friends = function() {
+  // from click, find username (in class list)
+  var username = $(this).text().split(":")[0];
+  console.log($("." + username));
+  // for all of those list elements, make bold
+  $("." + username).toggleClass('friend'); 
+};
+
 $( document ).ready(function() {
   $('.submit').on('click', function() {
     var message = {
@@ -119,6 +133,14 @@ $( document ).ready(function() {
     app.send(message);
   });
   
+  // $('#roomSelect > a').on('click', function() {
+    
+  //   console.log('text:' + $(this).text());
+  //   app.showRoom($(this).text());
+
+  // });
+
+
   //this can work but doesn't right now for uncliking rooms
   // $('.rooms').on('click', function(event) {
   //   console.log(event.target.matches('.dropbtn'));

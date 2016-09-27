@@ -83,11 +83,6 @@ form input[type=text] {
     padding: 10px;
 }
 
-.friend {
-    color: #fff;
-    background-color: #0090da;
-}
-
 /* Dropdown Button */
 .dropbtn {
     background-color: #4CAF50;
@@ -133,3 +128,6 @@ form input[type=text] {
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
 .show {display:block;}
 
+.friend {
+    font-weight: bold;
+}
