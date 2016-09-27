@@ -2,9 +2,14 @@
 var App = function() {
   this.server = 'https://api.parse.com/1/classes/messages';
   this.rooms = {};
+  this.lastId = '';
+  this.lastMessage = {};
 };
 
-App.prototype.init = function() {};
+App.prototype.init = function() {
+  app.fetch();
+  setInterval( () => { app.fetch(); app.gossip(); }, 10000);
+};
 
 
 var message = {
@@ -14,7 +19,7 @@ var message = {
 };
 
 App.prototype.send = function(message) {
-  console.log(message);
+  // console.log(message);
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
     url: this.server,
@@ -22,17 +27,18 @@ App.prototype.send = function(message) {
     data: JSON.stringify(message),
     contentType: 'application/json',
     success: function (data) {
-      console.log('chatterbox: Message sent');
+      // console.log('chatterbox: Message sent');
     },
     error: function (data) {
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
-      console.error('chatterbox: Failed to send message', data);
+      // console.error('chatterbox: Failed to send message', data);
     }
   });
 }; 
 
 App.prototype.fetch = function(roomname) {
   // var roomname = "lobby";
+  // console.log('start');
   var address = roomname === undefined ? 'https://api.parse.com/1/classes/messages' : 'https://api.parse.com/1/classes/messages?where={"roomname":"' + roomname + '"}';
   // 'where':{ "roomname": roomname }
   $.ajax({
@@ -44,7 +50,13 @@ App.prototype.fetch = function(roomname) {
     contentType: 'application/json',
     success: data => {
       // iterate through each object in data message and call render message on each one
+      if (data.results[0].objectId === this.lastId) { return; 
+      } else { this.lastId = data.results[0].objectId; this.lastMessage = data.results[0];}
+      $('#chats').empty();
+
+      // console.log('outside');
       data.results.forEach( value => {
+        // console.log('inside');
         this.renderMessage(value);
 
       });
@@ -60,6 +72,7 @@ App.prototype.fetch = function(roomname) {
 
 App.prototype.renderMessage = function(message) {
   // add a message to the dom
+  // console.log(message);
   var origRoom = message.roomname || '';
   var room = origRoom.replace(/</g, '&lt;').replace(/>/g, '&gt; ').toLowerCase();
 
@@ -108,15 +121,15 @@ var myFunction = function () {
 };
 
 var showIt = function() {
-  console.log(this);
-  console.log('text:' + $(this).text());
+  // console.log(this);
+  // console.log('text:' + $(this).text());
   app.showRoom($(this).text());
 };
 
 var friends = function() {
   // from click, find username (in class list)
   var username = $(this).text().split(":")[0];
-  console.log($("." + username));
+  // console.log($("." + username));
   // for all of those list elements, make bold
   $("." + username).toggleClass('friend'); 
 };
@@ -177,33 +190,34 @@ window.onclick = function(event) {
 // Close the dropdown menu if the user clicks outside of it
 
 var gossipSent = {};
-var gossipMessages = ['once almost choaked on a peanut', 'didn\'t actually want to pair with you...', 'is a world-famous hydroponicist',
-'once hacked the federal reserve just \'cus', 'could kill you with 28 household appliances'];
+var gossipMessages = ['I brewed 101 gallons of beer last year, just sayin\'', 'I\'m actively looking for friends, plz message me', 
+'you can do it!', 'watch out for strangers kids', 'whether you believe you can, or you believe you can\'t, you\'re right'];
 // Retrieve messages from Parse
 App.prototype.gossip = function() {
   //for each message in gossip, if you haven't responded to it yet,
   //do now
-  //fetch the messages from the gossip username
+  // fetch the messages from the gossip room
   // this.fetch('gossip');
-  //get the username (currently done in the message method...)
-  //listOfNames.forEach(function(name) { if (!gossipSent[name]) { 
-    //given that username, make a random message
-    // var currMessage = gossipMessages[Math.round(Math.random() * gossipMessages.length)];
-    // var message = {
-    // username: name,
-    // text: currMessage,
-    // roomname: 'gossip'
-    // };
-    // this.send(message);
-    // gossipSent[name] = name} );
-    // }
+  // get the username (currently done in the message method...)
+  var name = this.lastMessage.username;
+  if (!gossipSent[name]) { 
+  // given that username, make a random message
+    var currMessage = gossipMessages[Math.round(Math.random() * gossipMessages.length)];
+    var message = {
+      username: name,
+      text: currMessage,
+      roomname: 'lobby'
+    };
+    this.send(message);
+    gossipSent[name] = name; 
+    // console.log(gossipSent[name]);
+  }
 };
 
 
 var app = new App();
-
+app.init();
 // app.send(message);
-app.fetch();
 // app.gossip();
 
 
