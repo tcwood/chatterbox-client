@@ -8,7 +8,7 @@ var App = function() {
 
 App.prototype.init = function() {
   app.fetch();
-  setInterval( () => { app.fetch(); app.gossip(); }, 10000);
+  setInterval( () => { app.fetch(); app.gossip(); app.timeBot(); }, 2000);
 };
 
 
@@ -144,6 +144,7 @@ $( document ).ready(function() {
       roomname: 'lobby'
     };
     app.send(message);
+    $('.newmessage').val('');
   });
   
   // $('#roomSelect > a').on('click', function() {
@@ -153,6 +154,8 @@ $( document ).ready(function() {
 
   // });
 
+  //general format to select anchor children under .roomSelect when anchor tags don't exist at start               
+    // $('.roomSelect').on('click', 'a', function(){})
 
   //this can work but doesn't right now for uncliking rooms
   // $('.rooms').on('click', function(event) {
@@ -188,10 +191,27 @@ window.onclick = function(event) {
 
 
 // Close the dropdown menu if the user clicks outside of it
+App.prototype.timeBot = function() {
+  var lastText = this.lastMessage.text || '';
+  // console.log(this.lastMessage, this.lastMessage.text);
+  if (lastText.search('time') !== -1) {
+    var d = new Date();
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var hour = d.getHours() > 12 ? d.getHours() - 12 : d.getHours();
+    var min = d.getMinutes() > 10 ? d.getMinutes() + 5 : '0' + d.getMinutes() + 5;
+    var message = {
+      username: 'Master o time',
+      text: 'The world will end today, ' + days[d.getDay()] + ', at ' + hour + ':' + min,
+      roomname: 'lobby'
+    };
+    this.send(message);
+  }
+};
+// process the top message--
 
 var gossipSent = {};
-var gossipMessages = ['I brewed 101 gallons of beer last year, just sayin\'', 'I\'m actively looking for friends, plz message me', 
-'you can do it!', 'watch out for strangers kids', 'whether you believe you can, or you believe you can\'t, you\'re right'];
+var gossipMessages = ['Don\'t stop believing, hold on to that fee-ee-eeling', 'hold on for your life, its gonna be a wild ride', 
+'chuck norris sheds his skin twice a year', 'an apple a day keeps chuck norris away'];
 // Retrieve messages from Parse
 App.prototype.gossip = function() {
   //for each message in gossip, if you haven't responded to it yet,
